@@ -2,6 +2,8 @@
 require_once('profile_submissions_widget.php');
 require_once('mysql_login.php');
 
+include 'header.php';
+
 $user_id = NULL;
 if (isset($_GET['user'])) {
     $user_id = $_GET["user"];
@@ -10,7 +12,7 @@ if (isset($_GET['user'])) {
     }
 }
 
-if(!isset($_GET["page"]
+if(!isset($_GET["page"])
     || !filter_var($_GET["page"], FILTER_VALIDATE_INT)) {
     $page = 1;
 } else {
@@ -24,7 +26,6 @@ if ($user_id) {
     $username = htmlentities($username, ENT_COMPAT, "UTF-8");
     
     $title=$username."'s Contest Submissions";
-    include 'header.php';
     echo "<h2><a href=\"profile.php?user=$user_id\">$username</a>'s contest submissions</h2>";
     echo getSubmissionTableString($user_id, false, 25, "?user=$user_id&page=", $page);
 } else {
