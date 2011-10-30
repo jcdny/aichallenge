@@ -851,6 +851,17 @@ CanvasElementAntsMap.prototype.draw = function() {
 		this.ctx.restore();
 	}
 
+	// draw overlay graphics output by player 0
+	this.setlinewidth(1);
+	this.setlinecolor(0, 0, 0, 1);
+	this.setfillcolor(255, 255, 255, 0.5);
+	overlay_history = this.state.replay.meta['replaydata']['overlay_history'];
+	overlays = overlay_history[0][this.turn];
+	for(i = 0; i < overlays.length; i++) {
+		overlay = "this." + overlays[i];
+		eval(overlay);
+	}
+
 	// fog
 	if (this.state.fogPlayer !== undefined) {
 		dx = (this.fog.w < colPixels) ? ((colPixels - this.fog.w + 1) >> 1) - this.fog.shiftX : 0;
@@ -859,6 +870,80 @@ CanvasElementAntsMap.prototype.draw = function() {
 			ctx.drawImage(img, x, y);
 		}, [ this.ctx, this.fog.canvas, dx, dy ]);
 	}
+};
+
+/**
+ * Overlay set line width
+ */
+CanvasElementAntsMap.prototype.setlinewidth = function(w)
+{
+	this.ctx.lineWidth = w;
+}
+/**
+ * Overlay set line colour
+ */
+CanvasElementAntsMap.prototype.setlinecolor = function(r, g, b, a)
+{
+	this.ctx.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
+}
+/**
+ * Overlay set fill colour
+ */
+CanvasElementAntsMap.prototype.setfillcolor = function(r, g, b, a)
+{
+	this.ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
+}
+/**
+ * Overlay circle
+ */
+CanvasElementAntsMap.prototype.circle = function(row, col, radius, fill)
+{
+	halfScale = 0.5 * this.scale;
+	x = (col * this.scale) + halfScale;
+	y = (row * this.scale) + halfScale;
+	radius = radius * this.scale;
+	this.drawWrapped(x - radius, y - radius, 2 * radius, 2 * radius, this.w, this.h, function(x, y, radius, fill) {
+		this.ctx.beginPath();
+		this.ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+		this.ctx.closePath();
+		fill ? this.ctx.fill() : this.ctx.stroke();
+	 }, [x, y, radius, fill]);
+};
+/**
+ * Overlay rect
+ */
+CanvasElementAntsMap.prototype.rect = function(row, col, width, height, fill)
+{
+	halfScale = 0.5 * this.scale;
+	x = (col * this.scale) + halfScale;
+	y = (row * this.scale) + halfScale;
+	w = width * this.scale;
+	h = height * this.scale;
+	this.drawWrapped(x, y, w, h, this.w, this.h, function(x, y, w, h, fill) {
+		this.ctx.beginPath();
+		this.ctx.rect(x, y, w, h);
+		this.ctx.closePath();
+		fill ? this.ctx.fill() : this.ctx.stroke();
+	 }, [x, y, w, h, fill]);
+};
+/**
+ * Overlay line
+ */
+CanvasElementAntsMap.prototype.line = function(row1, col1, row2, col2)
+{
+	// Currently doesn't try to draw the shortest/wrapped line!
+	halfScale = 0.5 * this.scale;
+	x1 = (col1 * this.scale) + halfScale;
+	y1 = (row1 * this.scale) + halfScale;
+	x2 = (col2 * this.scale) + halfScale;
+	y2 = (row2 * this.scale) + halfScale;
+	this.drawWrapped(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1), this.w, this.h, function(x1, y1, x2, y2) {
+		this.ctx.beginPath();
+		this.ctx.moveTo(x1, y1);
+		this.ctx.lineTo(x2, y2);
+		this.ctx.closePath();
+		this.ctx.stroke();
+	 }, [x1, y1, x2, y2]);
 };
 
 /**

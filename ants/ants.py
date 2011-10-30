@@ -101,6 +101,9 @@ class Ants(Game):
         self.hive_food = [0]*self.num_players # food waiting to spawn for player
         self.hive_history = [[0] for _ in range(self.num_players)]
 
+        # overlay history for each player at each turn
+        self.overlay_history = [[0] for _ in range(self.num_players)]
+
         # used to cutoff games early
         self.cutoff = None
         self.cutoff_bot = LAND # Can be ant owner, FOOD or LAND
@@ -526,7 +529,50 @@ class Ants(Game):
                 ants.append(self.current_ants[n_loc])
         return ants
 
-    def parse_orders(self, player, lines):
+    def filter_bot_output(self, player, lines):
+        """ Filter all output from the given player
+
+            Removes comments and blank lines and filters all
+            valid commands into separate groups.
+        """
+        invalid = []
+        orders = []
+        overlays = []
+
+        for line in lines:
+            line = line.strip().lower()
+            # ignore blank lines and comments
+            if not line or line[0] == '#':
+                continue
+            # ensure all lines are single-character commands
+            if not line[1] == ' ':
+                invalid.append((line, 'unknown command'))
+
+            # put the different types of command into different arrays
+            if line[0] == 'o':
+                orders.append(line)
+            elif line[0] == 'v':
+                overlays.append(line)
+            else:
+                invalid.append((line, 'unknown command'))
+
+        return invalid, orders, overlays
+
+    def parse_overlays(self, player, invalid, lines):
+        """ Parse visualizer overlay commands from the given player
+
+            Visualizer overlay commands start with 'v ' then the rest
+            is just passed straight through to the javascript
+        """
+        overlays = []
+
+        for line in lines:
+            # Append the command
+            overlays.append(line[2:])
+
+        return invalid, overlays
+
+    def parse_orders(self, player, invalid, lines):
         """ Parse orders from the given player
 
             Orders must be of the form: o row col direction
@@ -536,14 +582,8 @@ class Ants(Game):
         orders = []
         valid = []
         ignored = []
-        invalid = []
 
         for line in lines:
-            line = line.strip().lower()
-            # ignore blank lines and comments
-            if not line or line[0] == '#':
-                continue
-
             data = line.split()
 
             # validate data format
@@ -1562,9 +1602,16 @@ class Ants(Game):
 
     def do_moves(self, player, moves):
         """ Called by engine to give latest player orders """
-        orders, valid, ignored, invalid = self.parse_orders(player, moves)
+        # filter output into different arrays
+        invalid, orders, overlays = self.filter_bot_output(player, moves)
+        # parse the array of orders
+        orders, valid, ignored, invalid = self.parse_orders(player, invalid, orders)
         orders, valid, ignored, invalid = self.validate_orders(player, orders, valid, ignored, invalid)
         self.orders[player] = orders
+        # parse the array of visualizer commands
+        invalid, overlays = self.parse_overlays(player, invalid, overlays)
+        self.overlay_history[player].append(overlays)
+        # return valid orders, ignore messages, and error messages
         return valid, ['%s # %s' % ignore for ignore in ignored], ['%s # %s' % error for error in invalid]
 
     def get_scores(self, player=None):
@@ -1711,6 +1758,9 @@ class Ants(Game):
         replay['winning_turn'] = self.winning_turn
         replay['ranking_turn'] = self.ranking_turn
         replay['cutoff'] =  self.cutoff
+
+        # overlay history
+        replay['overlay_history'] = self.overlay_history
 
         return replay
 
