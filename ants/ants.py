@@ -102,7 +102,7 @@ class Ants(Game):
         self.hive_history = [[0] for _ in range(self.num_players)]
 
         # overlay history for each player at each turn
-        self.overlay_history = [[0] for _ in range(self.num_players)]
+        self.overlay_history = [[] for _ in range(self.num_players)]
 
         # used to cutoff games early
         self.cutoff = None
