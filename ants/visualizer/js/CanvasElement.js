@@ -858,8 +858,28 @@ CanvasElementAntsMap.prototype.draw = function() {
 	overlay_history = this.state.replay.meta['replaydata']['overlay_history'];
 	overlays = overlay_history[0][this.turn];
 	for(i = 0; i < overlays.length; i++) {
-		overlay = "this." + overlays[i];
-		eval(overlay);
+		// process visualizer commands
+		overlay = overlays[i].split(',');
+		switch (overlay[0]) {
+			case 'setLineWidth':
+			this.setLineWidth(overlay[1]);
+			break;
+			case 'setLineColor':
+			this.setLineColor(overlay[1], overlay[2], overlay[3], overlay[4]);
+			break;
+			case 'setFillColor':
+			this.setFillColor(overlay[1], overlay[2], overlay[3], overlay[4]);
+			break;
+			case 'circle':
+			this.drawCircle(overlay[1], overlay[2], overlay[3], overlay[4].toLowerCase() === 'true');
+			break;
+			case 'rect':
+			this.drawRect(overlay[1], overlay[2], overlay[3], overlay[4], overlay[5].toLowerCase() === 'true');
+			break;
+			case 'line':
+			this.drawLine(overlay[1], overlay[2], overlay[3], overlay[4]);
+			break;
+		}
 	}
 
 	// fog
@@ -896,7 +916,7 @@ CanvasElementAntsMap.prototype.setFillColor = function(r, g, b, a)
 /**
  * Overlay circle
  */
-CanvasElementAntsMap.prototype.circle = function(row, col, radius, fill)
+CanvasElementAntsMap.prototype.drawCircle = function(row, col, radius, fill)
 {
 	halfScale = 0.5 * this.scale;
 	x = (col * this.scale) + halfScale;
@@ -912,7 +932,7 @@ CanvasElementAntsMap.prototype.circle = function(row, col, radius, fill)
 /**
  * Overlay rect
  */
-CanvasElementAntsMap.prototype.rect = function(row, col, width, height, fill)
+CanvasElementAntsMap.prototype.drawRect = function(row, col, width, height, fill)
 {
 	halfScale = 0.5 * this.scale;
 	x = (col * this.scale) + halfScale;
@@ -929,7 +949,7 @@ CanvasElementAntsMap.prototype.rect = function(row, col, width, height, fill)
 /**
  * Overlay line
  */
-CanvasElementAntsMap.prototype.line = function(row1, col1, row2, col2)
+CanvasElementAntsMap.prototype.drawLine = function(row1, col1, row2, col2)
 {
 	// Currently doesn't try to draw the shortest/wrapped line!
 	halfScale = 0.5 * this.scale;

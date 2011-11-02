@@ -570,7 +570,8 @@ class Ants(Game):
 
         for line in lines:
             # Append the command
-            overlays.append(line[2:])
+            vcmd = line[2:].replace(' ', ',')
+            overlays.append(vcmd)
 
         return invalid, overlays
 
