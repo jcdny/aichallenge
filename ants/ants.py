@@ -540,7 +540,7 @@ class Ants(Game):
         overlays = []
 
         for line in lines:
-            line = line.strip().lower()
+            line = line.strip()
             # ignore blank lines and comments
             if not line or line[0] == '#':
                 continue
@@ -548,10 +548,12 @@ class Ants(Game):
             if not line[1] == ' ':
                 invalid.append((line, 'unknown command'))
 
+            # get command character in lowercase
+            command = line[0].lower()
             # put the different types of command into different arrays
-            if line[0] == 'o':
-                orders.append(line)
-            elif line[0] == 'v':
+            if command == 'o':
+                orders.append(line.lower())
+            elif command == 'v':
                 overlays.append(line)
             else:
                 invalid.append((line, 'unknown command'))

@@ -852,9 +852,9 @@ CanvasElementAntsMap.prototype.draw = function() {
 	}
 
 	// draw overlay graphics output by player 0
-	this.setlinewidth(1);
-	this.setlinecolor(0, 0, 0, 1);
-	this.setfillcolor(255, 255, 255, 0.5);
+	this.setLineWidth(1);
+	this.setLineColor(0, 0, 0, 1);
+	this.setFillColor(255, 255, 255, 0.5);
 	overlay_history = this.state.replay.meta['replaydata']['overlay_history'];
 	overlays = overlay_history[0][this.turn];
 	for(i = 0; i < overlays.length; i++) {
@@ -875,21 +875,21 @@ CanvasElementAntsMap.prototype.draw = function() {
 /**
  * Overlay set line width
  */
-CanvasElementAntsMap.prototype.setlinewidth = function(w)
+CanvasElementAntsMap.prototype.setLineWidth = function(w)
 {
 	this.ctx.lineWidth = w;
 }
 /**
  * Overlay set line colour
  */
-CanvasElementAntsMap.prototype.setlinecolor = function(r, g, b, a)
+CanvasElementAntsMap.prototype.setLineColor = function(r, g, b, a)
 {
 	this.ctx.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
 }
 /**
  * Overlay set fill colour
  */
-CanvasElementAntsMap.prototype.setfillcolor = function(r, g, b, a)
+CanvasElementAntsMap.prototype.setFillColor = function(r, g, b, a)
 {
 	this.ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
 }
