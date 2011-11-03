@@ -855,42 +855,47 @@ CanvasElementAntsMap.prototype.draw = function() {
 	this.setLineWidth(1);
 	this.setLineColor(0, 0, 0, 1);
 	this.setFillColor(255, 255, 255, 0.5);
-	overlay_history = this.state.replay.meta['replaydata']['overlay_history'];
-	overlays = overlay_history[0][this.turn];
-	if(overlays != null) {
-		for(i = 0; i < overlays.length; i++) {
-			// process visualizer commands
-			overlay = overlays[i].split(',');
-			switch (overlay[0]) {
-				case 'setLineWidth':
-				this.setLineWidth(overlay[1]);
-				break;
-				case 'setLineColor':
-				this.setLineColor(overlay[1], overlay[2], overlay[3], overlay[4]);
-				break;
-				case 'setFillColor':
-				this.setFillColor(overlay[1], overlay[2], overlay[3], overlay[4]);
-				break;
-				case 'arrow':
-				this.drawArrow(overlay[1], overlay[2], overlay[3], overlay[4]);
-				break;
-				case 'circle':
-				this.drawCircle(overlay[1], overlay[2], overlay[3], overlay[4].toLowerCase() === 'true');
-				break;
-				case 'line':
-				this.drawLine(overlay[1], overlay[2], overlay[3], overlay[4]);
-				break;
-				case 'rect':
-				this.drawRect(overlay[1], overlay[2], overlay[3], overlay[4], overlay[5].toLowerCase() === 'true');
-				break;
-				case 'star':
-				this.drawStar(overlay[1], overlay[2], overlay[3], overlay[4], overlay[5], overlay[6].toLowerCase() === 'true');
-				break;
-				case 'tile':
-				this.drawTile(overlay[1], overlay[2]);
-				break;
-			}
-		}
+	var overlay_history = this.state.replay.meta['replaydata']['overlay_history'];
+	for (var player = 0; player < this.state.replay.meta['playernames'].length; player++) {
+	  var overlays = overlay_history[player][this.turn];
+	  if(overlays != null) {
+		  for(i = 0; i < overlays.length; i++) {
+			  // process visualizer commands
+			  overlay = overlays[i].split(',');
+			  switch (overlay[0]) {
+				  case 'setLineWidth':
+				  this.setLineWidth(overlay[1]);
+				  break;
+				  case 'setLineColor':
+				  this.setLineColor(overlay[1], overlay[2], overlay[3], overlay[4]);
+				  break;
+				  case 'setFillColor':
+				  this.setFillColor(overlay[1], overlay[2], overlay[3], overlay[4]);
+				  break;
+				  case 'arrow':
+				  this.drawArrow(overlay[1], overlay[2], overlay[3], overlay[4]);
+				  break;
+				  case 'circle':
+				  this.drawCircle(overlay[1], overlay[2], overlay[3], overlay[4].toLowerCase() === 'true');
+				  break;
+				  case 'line':
+				  this.drawLine(overlay[1], overlay[2], overlay[3], overlay[4]);
+				  break;
+				  case 'rect':
+				  this.drawRect(overlay[1], overlay[2], overlay[3], overlay[4], overlay[5].toLowerCase() === 'true');
+				  break;
+				  case 'star':
+				  this.drawStar(overlay[1], overlay[2], overlay[3], overlay[4], overlay[5], overlay[6].toLowerCase() === 'true');
+				  break;
+				  case 'tile':
+				  this.drawTile(overlay[1], overlay[2]);
+				  break;
+				  case 'corner':
+				  this.drawCorner(overlay[1], overlay[2], overlay[3]);
+				  break;
+			  }
+		  }
+	  }
 	}
 
 	// fog
@@ -909,26 +914,31 @@ CanvasElementAntsMap.prototype.draw = function() {
 CanvasElementAntsMap.prototype.setLineWidth = function(w)
 {
 	this.ctx.lineWidth = w;
-}
+};
+
 /**
  * Overlay set line colour
  */
 CanvasElementAntsMap.prototype.setLineColor = function(r, g, b, a)
 {
 	this.ctx.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
-}
+};
+
 /**
  * Overlay set fill colour
  */
 CanvasElementAntsMap.prototype.setFillColor = function(r, g, b, a)
 {
 	this.ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
-}
+};
+
 /**
  * Overlay circle
  */
 CanvasElementAntsMap.prototype.drawCircle = function(row, col, radius, fill)
 {
+	var halfScale, x, y, radius;
+	
 	halfScale = 0.5 * this.scale;
 	x = (col * this.scale) + halfScale;
 	y = (row * this.scale) + halfScale;
@@ -939,11 +949,14 @@ CanvasElementAntsMap.prototype.drawCircle = function(row, col, radius, fill)
 		fill ? this.ctx.fill() : this.ctx.stroke();
 	 }, []);
 };
+
 /**
  * Overlay rect
  */
 CanvasElementAntsMap.prototype.drawRect = function(row, col, width, height, fill)
 {
+	var halfScale, x, y, w, h;
+	
 	halfScale = 0.5 * this.scale;
 	x = (col * this.scale) + halfScale;
 	y = (row * this.scale) + halfScale;
@@ -955,11 +968,14 @@ CanvasElementAntsMap.prototype.drawRect = function(row, col, width, height, fill
 		fill ? this.ctx.fill() : this.ctx.stroke();
 	 }, []);
 };
+
 /**
  * Overlay line
  */
 CanvasElementAntsMap.prototype.drawLine = function(row1, col1, row2, col2)
 {
+	var halfScale, x1, x2, y1, y2;
+	
 	// Currently doesn't try to draw the shortest/wrapped line!
 	halfScale = 0.5 * this.scale;
 	x1 = (col1 * this.scale) + halfScale;
@@ -973,11 +989,14 @@ CanvasElementAntsMap.prototype.drawLine = function(row1, col1, row2, col2)
 		this.ctx.stroke();
 	 }, []);
 };
+
 /**
  * Overlay arrow
  */
 CanvasElementAntsMap.prototype.drawArrow = function(row1, col1, row2, col2)
 {
+	var halfScale, x1, x2, y1, y2, dx, dy, len, hlen, angle, sharp;
+	
 	// Currently doesn't try to draw the shortest/wrapped line!
 	halfScale = 0.5 * this.scale;
 	x1 = (col1 * this.scale) + halfScale;
@@ -1000,6 +1019,7 @@ CanvasElementAntsMap.prototype.drawArrow = function(row1, col1, row2, col2)
 		this.ctx.stroke();
 	}, []);
 };
+
 /**
  * Overlay tile
  */
@@ -1007,11 +1027,14 @@ CanvasElementAntsMap.prototype.drawTile = function(row, col)
 {
 	this.drawRect(row - 0.5, col - 0.5, 1, 1, true);
 };
+
 /**
  * Overlay star
  */
 CanvasElementAntsMap.prototype.drawStar = function(row, col, irad, orad, points, fill)
 {
+	var halfScale, x, y, angle, irad, orad;
+	
 	halfScale = 0.5 * this.scale;
 	x = (col * this.scale) + halfScale;
 	y = (row * this.scale) + halfScale;
@@ -1030,6 +1053,45 @@ CanvasElementAntsMap.prototype.drawStar = function(row, col, irad, orad, points,
 		this.ctx.closePath();
 		fill ? this.ctx.fill() : this.ctx.stroke();
 	}, []);
+};
+
+/**
+ * Overlay corner
+ */
+CanvasElementAntsMap.prototype.drawCorner = function(row, col, pos) {
+	var scale, x, y, width, height;
+	
+	scale = this.scale;
+	w = 0.4 * this.scale;
+	h = 0.4 * this.scale;
+	switch(pos) {
+		case 'top_left' :
+			x = (col * this.scale);
+			y = (row * this.scale);
+			break;
+		case 'top_rigth' :
+			x = (col * this.scale) + scale - w;
+			y = (row * this.scale);
+			break;
+		case 'bottom_left' :
+			x = (col * this.scale);
+			y = (row * this.scale) + scale - h;
+			break;
+		case 'bottom_rigth' :
+			x = (col * this.scale) + scale - w;
+			y = (row * this.scale) + scale - h;
+			break;
+		case 'inner' :
+			x = (col * this.scale) + scale/2 - w/2;
+			y = (row * this.scale) + scale/2 - h/2;
+			break;
+	}
+	this.drawWrapped(x, y, w, h, this.w, this.h, function() {
+		this.ctx.beginPath();
+		this.ctx.rect(x, y, w, h);
+		this.ctx.closePath();
+		this.ctx.fill();
+	 }, []);  
 };
 
 /**
