@@ -864,35 +864,38 @@ CanvasElementAntsMap.prototype.draw = function() {
 			  overlay = overlays[i].split(',');
 			  switch (overlay[0]) {
 				  case 'setLineWidth':
-				  this.setLineWidth(overlay[1]);
-				  break;
+					  this.setLineWidth(Number(overlay[1]));
+					  break;
 				  case 'setLineColor':
-				  this.setLineColor(overlay[1], overlay[2], overlay[3], overlay[4]);
-				  break;
+					  this.setLineColor(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
+					  break;
 				  case 'setFillColor':
-				  this.setFillColor(overlay[1], overlay[2], overlay[3], overlay[4]);
-				  break;
+					  this.setFillColor(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
+					  break;
 				  case 'arrow':
-				  this.drawArrow(overlay[1], overlay[2], overlay[3], overlay[4]);
-				  break;
+					  this.drawArrow(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
+					  break;
 				  case 'circle':
-				  this.drawCircle(overlay[1], overlay[2], overlay[3], overlay[4].toLowerCase() === 'true');
-				  break;
+					  this.drawCircle(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), overlay[4].toLowerCase() === 'true');
+					  break;
 				  case 'line':
-				  this.drawLine(overlay[1], overlay[2], overlay[3], overlay[4]);
-				  break;
+					  this.drawLine(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
+					  break;
 				  case 'rect':
-				  this.drawRect(overlay[1], overlay[2], overlay[3], overlay[4], overlay[5].toLowerCase() === 'true');
-				  break;
+					  this.drawRect(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]), overlay[5].toLowerCase() === 'true');
+					  break;
 				  case 'star':
-				  this.drawStar(overlay[1], overlay[2], overlay[3], overlay[4], overlay[5], overlay[6].toLowerCase() === 'true');
-				  break;
+					  this.drawStar(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]), Number(overlay[5]), overlay[6].toLowerCase() === 'true');
+					  break;
 				  case 'tile':
-				  this.drawTile(overlay[1], overlay[2]);
-				  break;
-				  case 'corner':
-				  this.drawCorner(overlay[1], overlay[2], overlay[3]);
-				  break;
+					  this.drawTile(Number(overlay[1]), Number(overlay[2]));
+					  break;
+				  case 'tileBorder':
+					  this.drawTileBorder(Number(overlay[1]), Number(overlay[2]), overlay[3]);
+					  break;
+				  case 'tileSubTile':
+					  this.drawTileSubTile(Number(overlay[1]), Number(overlay[2]), overlay[3]);
+					  break;
 			  }
 		  }
 	  }
@@ -982,7 +985,7 @@ CanvasElementAntsMap.prototype.drawLine = function(row1, col1, row2, col2)
 	y1 = (row1 * this.scale) + halfScale;
 	x2 = (col2 * this.scale) + halfScale;
 	y2 = (row2 * this.scale) + halfScale;
-	this.drawWrapped(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1), this.w, this.h, function() {
+	this.drawWrapped(Math.min(x1, x2) - 0.01, Math.min(y1, y2) - 0.01, Math.abs(x2 - x1) + 0.02, Math.abs(y2 - y1) + 0.02, this.w, this.h, function() {
 		this.ctx.beginPath();
 		this.ctx.moveTo(x1, y1);
 		this.ctx.lineTo(x2, y2);
@@ -1009,7 +1012,7 @@ CanvasElementAntsMap.prototype.drawArrow = function(row1, col1, row2, col2)
 	hlen = Math.min(2.0 * this.scale, 0.5 * len);
 	angle = Math.atan2(y2 - y1, x2 - x1);
 	sharp = 0.25;
-	this.drawWrapped(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1), this.w, this.h, function() {
+	this.drawWrapped(Math.min(x1, x2) - 0.01, Math.min(y1, y2) - 0.01, Math.abs(x2 - x1) + 0.02, Math.abs(y2 - y1) + 0.02, this.w, this.h, function() {
 		this.ctx.beginPath();
 		this.ctx.moveTo(x1, y1);
 		this.ctx.lineTo(x2, y2);
@@ -1056,42 +1059,77 @@ CanvasElementAntsMap.prototype.drawStar = function(row, col, irad, orad, points,
 };
 
 /**
- * Overlay corner
+ * Overlay tile border
  */
-CanvasElementAntsMap.prototype.drawCorner = function(row, col, pos) {
-	var scale, x, y, width, height;
-	
-	scale = this.scale;
-	w = 0.4 * this.scale;
-	h = 0.4 * this.scale;
+CanvasElementAntsMap.prototype.drawTileBorder = function(row, col, pos) {
 	switch(pos) {
-		case 'top_left' :
-			x = (col * this.scale);
-			y = (row * this.scale);
+		case 'TL':
+			this.drawLine(row - 0.45, col - 0.45, row - 0.45, col - 0.15);
+			this.drawLine(row - 0.45, col - 0.45, row - 0.15, col - 0.45);
 			break;
-		case 'top_rigth' :
-			x = (col * this.scale) + scale - w;
-			y = (row * this.scale);
+		case 'TM':
+			this.drawLine(row - 0.45, col - 0.15, row - 0.45, col + 0.15);
 			break;
-		case 'bottom_left' :
-			x = (col * this.scale);
-			y = (row * this.scale) + scale - h;
+		case 'TR':
+			this.drawLine(row - 0.45, col + 0.45, row - 0.45, col + 0.15);
+			this.drawLine(row - 0.45, col + 0.45, row - 0.15, col + 0.45);
 			break;
-		case 'bottom_rigth' :
-			x = (col * this.scale) + scale - w;
-			y = (row * this.scale) + scale - h;
+		case 'ML':
+			this.drawLine(row - 0.15, col - 0.45, row + 0.15, col - 0.45);
 			break;
-		case 'inner' :
-			x = (col * this.scale) + scale/2 - w/2;
-			y = (row * this.scale) + scale/2 - h/2;
+		case 'MM':
+			this.drawRect(row - 0.45, col - 0.45, 0.9, 0.9, false);
+			break;
+		case 'MR':
+			this.drawLine(row - 0.15, col + 0.45, row + 0.15, col + 0.45);
+			break;
+		case 'BL':
+			this.drawLine(row + 0.45, col - 0.45, row + 0.45, col - 0.15);
+			this.drawLine(row + 0.45, col - 0.45, row + 0.15, col - 0.45);
+			break;
+		case 'BM':
+			this.drawLine(row + 0.45, col - 0.15, row + 0.45, col + 0.15);
+			break;
+		case 'BR':
+			this.drawLine(row + 0.45, col + 0.45, row + 0.45, col + 0.15);
+			this.drawLine(row + 0.45, col + 0.45, row + 0.15, col + 0.45);
 			break;
 	}
-	this.drawWrapped(x, y, w, h, this.w, this.h, function() {
-		this.ctx.beginPath();
-		this.ctx.rect(x, y, w, h);
-		this.ctx.closePath();
-		this.ctx.fill();
-	 }, []);  
+};
+
+/**
+ * Overlay tile sub-tile
+ */
+CanvasElementAntsMap.prototype.drawTileSubTile = function(row, col, pos) {
+	switch(pos) {
+		case 'TL':
+			this.drawRect(row - 0.45, col - 0.45, 0.3, 0.3, true);
+			break;
+		case 'TM':
+			this.drawRect(row - 0.45, col - 0.15, 0.3, 0.3, true);
+			break;
+		case 'TR':
+			this.drawRect(row - 0.45, col + 0.15, 0.3, 0.3, true);
+			break;
+		case 'ML':
+			this.drawRect(row - 0.15, col - 0.45, 0.3, 0.3, true);
+			break;
+		case 'MM':
+			this.drawRect(row - 0.15, col - 0.15, 0.3, 0.3, true);
+			break;
+		case 'MR':
+			this.drawRect(row - 0.15, col + 0.15, 0.3, 0.3, true);
+			break;
+		case 'BL':
+			this.drawRect(row + 0.15, col - 0.45, 0.3, 0.3, true);
+			break;
+		case 'BM':
+			this.drawRect(row + 0.15, col - 0.15, 0.3, 0.3, true);
+			break;
+		case 'BR':
+			this.drawRect(row + 0.15, col + 0.15, 0.3, 0.3, true);
+			break;
+	}
 };
 
 /**
