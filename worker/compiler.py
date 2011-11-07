@@ -55,9 +55,9 @@ from string import split
 
 try:
     from server_info import server_info
-    MEMORY_LIMIT = server_info.get('memory_limit', 500)
+    MEMORY_LIMIT = server_info.get('memory_limit', 1500)
 except ImportError:
-    MEMORY_LIMIT = 500
+    MEMORY_LIMIT = 1500
 
 BOT = "MyBot"
 SAFEPATH = re.compile('[a-zA-Z0-9_.$-]+$')
@@ -301,14 +301,18 @@ class TargetCompiler(Compiler):
             box.release()
         return True
 
+PYTHON_EXT_COMPILER = '''"from distutils.core import setup
+from distutils.extension import read_setup_file
+setup(ext_modules = read_setup_file('setup_exts'), script_args = ['-q', 'build_ext', '-i'])"'''
+
 comp_args = {
     # lang : ([list of compilation arguments], ...)
     #                If the compilation should output each source file to
     #                its own object file, don't include the -o flags here,
     #                and use the TargetCompiler in the languages dict.
-    "Ada"           : [["gcc", "-O3", "-funroll-loops", "-c"],
-                             ["gnatbind", BOT + ".ali"],
-                             ["gnatlink", BOT + ".ali", "-o", BOT]],
+    "Ada"           : [["gcc-4.4", "-O3", "-funroll-loops", "-c"],
+                             ["gnatbind"],
+                             ["gnatlink", "-o", BOT]],
     "C"             : [["gcc", "-O3", "-funroll-loops", "-c"],
                              ["gcc", "-O2", "-lm", "-o", BOT]],
     "C#"            : [["gmcs", "-warn:0", "-out:%s.exe" % BOT]],
@@ -330,6 +334,8 @@ comp_args = {
     "Lisp"      : [['sbcl', '--dynamic-space-size', str(MEMORY_LIMIT), '--script', BOT + '.lisp']],
     "OCaml"     : [["ocamlbuild -lib unix", BOT + ".native"]],
     "Pascal"    : [["fpc", "-Mdelphi", "-Si", "-O3", "-Xs", "-v0", "-o" + BOT]],
+    "Python"    : [["python", "-c", PYTHON_EXT_COMPILER]],
+    "Python3"   : [["python3", "-c", PYTHON_EXT_COMPILER]],
     "Scala"     : [["scalac"]],
     }
 
@@ -355,11 +361,11 @@ languages = (
     # If a source glob is "" it means the source is part of the compiler
     #   arguments.
     Language("Ada", BOT, "mybot.adb",
-        "./mybot",
-        [BOT + ".ali"],
+        "./MyBot",
+        ["*.ali"],
         [(["*.adb"], ExternalCompiler(comp_args["Ada"][0])),
-            (["*.ali"], ExternalCompiler(comp_args["Ada"][1])),
-            (["*.ali"], ExternalCompiler(comp_args["Ada"][2]))]
+            (["mybot.ali"], ExternalCompiler(comp_args["Ada"][1])),
+            (["mybot.ali"], ExternalCompiler(comp_args["Ada"][2]))]
     ),
     Language("C", BOT, "MyBot.c",
         "./MyBot",
@@ -480,12 +486,14 @@ languages = (
     Language("Python", BOT +".py", "MyBot.py",
         "python MyBot.py",
         ["*.pyc"],
-        [(["*.py"], ChmodCompiler("Python"))]
+        [(["*.py"], ChmodCompiler("Python")),
+        (["setup_exts"], ErrorFilterCompiler(comp_args["Python"][0], separate=True, filter_stderr='-Wstrict-prototypes'))]
     ),
     Language("Python3", BOT +".py3", "MyBot.py3",
         "python3 MyBot.py3",
         ["*.pyc"],
-        [(["*.py3"], ChmodCompiler("Python3"))]
+        [(["*.py3"], ChmodCompiler("Python3")),
+        (["setup_exts"], ErrorFilterCompiler(comp_args["Python3"][0], separate=True, filter_stderr='-Wstrict-prototypes'))]
     ),
     Language("Ruby", BOT +".rb", "MyBot.rb",
         "ruby MyBot.rb",
