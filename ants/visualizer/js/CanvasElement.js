@@ -861,7 +861,7 @@ CanvasElementAntsMap.prototype.draw = function() {
 	  if(overlays != null) {
 		  for(i = 0; i < overlays.length; i++) {
 			  // process visualizer commands
-			  overlay = overlays[i].split(',');
+			  var overlay = overlays[i].split(',');
 			  switch (overlay[0]) {
 				  case 'setLineWidth':
 					  this.setLineWidth(Number(overlay[1]));
