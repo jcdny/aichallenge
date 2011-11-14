@@ -851,54 +851,54 @@ CanvasElementAntsMap.prototype.draw = function() {
 		this.ctx.restore();
 	}
 
-	// draw overlay graphics output by player 0
+	// draw ai-state visualization graphics
 	this.setLineWidth(1);
 	this.setLineColor(0, 0, 0, 1);
 	this.setFillColor(255, 255, 255, 0.5);
 	var overlay_history = this.state.replay.meta['replaydata']['overlay_history'];
-	for (var player = 0; player < this.state.replay.meta['playernames'].length; player++) {
-	  var overlays = overlay_history[player][this.turn];
-	  if(overlays != null) {
-		  for(i = 0; i < overlays.length; i++) {
-			  // process visualizer commands
-			  var overlay = overlays[i].split(',');
-			  switch (overlay[0]) {
-				  case 'setLineWidth':
-					  this.setLineWidth(Number(overlay[1]));
-					  break;
-				  case 'setLineColor':
-					  this.setLineColor(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
-					  break;
-				  case 'setFillColor':
-					  this.setFillColor(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
-					  break;
-				  case 'arrow':
-					  this.drawArrow(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
-					  break;
-				  case 'circle':
-					  this.drawCircle(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), overlay[4].toLowerCase() === 'true');
-					  break;
-				  case 'line':
-					  this.drawLine(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
-					  break;
-				  case 'rect':
-					  this.drawRect(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]), overlay[5].toLowerCase() === 'true');
-					  break;
-				  case 'star':
-					  this.drawStar(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]), Number(overlay[5]), overlay[6].toLowerCase() === 'true');
-					  break;
-				  case 'tile':
-					  this.drawTile(Number(overlay[1]), Number(overlay[2]));
-					  break;
-				  case 'tileBorder':
-					  this.drawTileBorder(Number(overlay[1]), Number(overlay[2]), overlay[3]);
-					  break;
-				  case 'tileSubTile':
-					  this.drawTileSubTile(Number(overlay[1]), Number(overlay[2]), overlay[3]);
-					  break;
-			  }
-		  }
-	  }
+	if (this.state.aistatePlayer !== undefined) {
+		var overlays = overlay_history[this.state.aistatePlayer][this.turn];
+		if(overlays != null) {
+			for(i = 0; i < overlays.length; i++) {
+				// process visualizer commands
+				var overlay = overlays[i].split(',');
+				switch (overlay[0]) {
+					case 'setLineWidth':
+						this.setLineWidth(Number(overlay[1]));
+						break;
+					case 'setLineColor':
+						this.setLineColor(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
+						break;
+					case 'setFillColor':
+						this.setFillColor(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
+						break;
+					case 'arrow':
+						this.drawArrow(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
+						break;
+					case 'circle':
+						this.drawCircle(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), overlay[4].toLowerCase() === 'true');
+						break;
+					case 'line':
+						this.drawLine(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
+						break;
+					case 'rect':
+						this.drawRect(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]), overlay[5].toLowerCase() === 'true');
+						break;
+					case 'star':
+						this.drawStar(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]), Number(overlay[5]), overlay[6].toLowerCase() === 'true');
+						break;
+					case 'tile':
+						this.drawTile(Number(overlay[1]), Number(overlay[2]));
+						break;
+					case 'tileBorder':
+						this.drawTileBorder(Number(overlay[1]), Number(overlay[2]), overlay[3]);
+						break;
+					case 'tileSubTile':
+						this.drawTileSubTile(Number(overlay[1]), Number(overlay[2]), overlay[3]);
+						break;
+				}
+			}
+		}
 	}
 
 	// fog
