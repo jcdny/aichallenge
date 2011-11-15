@@ -178,7 +178,7 @@ class Ants(Game):
 
         # the engine may kill players before the game starts and this is needed to prevent errors
         self.orders = [[] for i in range(self.num_players)]
-        
+
 
     def distance(self, a_loc, b_loc):
         """ Returns distance between x and y squared """
@@ -452,6 +452,8 @@ class Ants(Game):
 
         # next list all transient objects
         for update in updates:
+            if update[0] == 'v': continue # ignore overlay commands
+
             type, row, col = update[0:3]
 
             # only include updates to squares which are visible
@@ -502,6 +504,12 @@ class Ants(Game):
             for ant in self.killed_ants
         ))
 
+        if self.turn:
+            changes.extend(sorted(
+                ['v', player, command]
+                for player in range(self.num_players)
+                for command in self.overlay_history[player][self.turn -1]
+            ))
         return changes
 
     def get_map_output(self, player=None):
@@ -810,7 +818,7 @@ class Ants(Game):
         self.all_ants.append(ant)
         self.current_ants[loc] = ant
         return ant
-    
+
     def kill_ant(self, ant, ignore_error=False):
         """ Kill the ant at the given location
 
@@ -1456,7 +1464,7 @@ class Ants(Game):
             self.score[players[0]] += self.bonus[players[0]]
 
         self.calc_significant_turns()
-        
+
         # check if a rule change lengthens games needlessly
         if self.cutoff is None:
             self.cutoff = 'turn limit reached'

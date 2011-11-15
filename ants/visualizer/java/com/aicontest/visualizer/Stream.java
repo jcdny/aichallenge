@@ -27,6 +27,7 @@ public class Stream extends IdScriptableObject {
 	private NativeObject map;
 	private NativeArray ants;
 	private NativeArray hills;
+	private NativeArray overlay_history;
 	private NativeArray antLists;
 	private NativeArray antList;
 	private NativeArray antListOld;
@@ -55,6 +56,7 @@ public class Stream extends IdScriptableObject {
 		replaydata = (NativeObject) meta.get("replaydata", meta);
 		ants = (NativeArray) replaydata.get("ants", replaydata);
 		hills = (NativeArray) replaydata.get("hills", replaydata);
+		overlay_history = (NativeArray) replaydata.get("overlay_history", replaydata);
 		map = (NativeObject) replaydata.get("map", replaydata);
 		br = new BufferedReader(new InputStreamReader(inputStream));
 		turn = -2;
@@ -114,6 +116,10 @@ public class Stream extends IdScriptableObject {
 					for (int i = 0; i < players; i++) {
 						storeSet.put(i, storeSet, 0);
 					}
+					for (int i = 0; i < players; i++) {
+						NativeArray turns = (NativeArray) overlay_history.get(i);
+						turns.put(turn, turns, new NativeArray(0));
+					}
 					NativeArray stores = (NativeArray) replay.get("stores",
 							replay);
 					stores.put(turn, stores, storeSet);
@@ -155,6 +161,8 @@ public class Stream extends IdScriptableObject {
 						wallsRow.put(i, wallsRow, c == '%');
 					} else {
 						if (players < playerId + 1) {
+							NativeArray turns = new NativeArray(0);
+							overlay_history.put(players, overlay_history, turns);
 							players = playerId + 1;
 						}
 						if (isHill) {
@@ -236,6 +244,11 @@ public class Stream extends IdScriptableObject {
 				ants.put(ant.id, ants, ant.js);
 				antList.put(antList.size(), antList, ant.js);
 				antMap[r][c] = null;
+			} else if ("v".equals(tokens[0])) {
+				int player = Integer.parseInt(tokens[1]);
+				NativeArray turns = (NativeArray) overlay_history.get(player);
+				NativeArray vcmds = (NativeArray) turns.get(turn);
+				vcmds.put(vcmds.size(), vcmds, tokens[2]);
 			} else if ("score".equals(tokens[0])) {
 				// the scores line for the start of the turn
 				NativeArray scoreSet = new NativeArray(players);
