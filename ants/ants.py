@@ -504,12 +504,12 @@ class Ants(Game):
             for ant in self.killed_ants
         ))
 
-        if self.turn:
-            changes.extend(sorted(
-                ['v', player, command]
-                for player in range(self.num_players)
-                for command in self.overlay_history[player][self.turn -1]
-            ))
+        for player in range(self.num_players):
+            turns = self.overlay_history[player]
+            if len(turns) > self.turn:
+                for command in turns[self.turn -1]:
+                    changes.append(['v', player, command])
+
         return changes
 
     def get_map_output(self, player=None):
