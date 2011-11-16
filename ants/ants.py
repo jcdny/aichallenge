@@ -506,7 +506,7 @@ class Ants(Game):
 
         for player in range(self.num_players):
             turns = self.overlay_history[player]
-            if len(turns) > self.turn:
+            if len(turns) >= self.turn and self.turn > 0:
                 for command in turns[self.turn -1]:
                     changes.append(['v', player, command])
 
