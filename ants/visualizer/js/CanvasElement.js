@@ -962,7 +962,8 @@ CanvasElementAntsMap.prototype.drawCircle = function(row, col, radius, fill)
 CanvasElementAntsMap.prototype.drawRect = function(row, col, width, height, fill)
 {
 	var halfScale, x, y, w, h;
-	
+
+	// Map the points into canvas coordinates
 	halfScale = 0.5 * this.scale;
 	x = (col * this.scale) + halfScale;
 	y = (row * this.scale) + halfScale;
@@ -981,13 +982,22 @@ CanvasElementAntsMap.prototype.drawRect = function(row, col, width, height, fill
 CanvasElementAntsMap.prototype.drawLine = function(row1, col1, row2, col2)
 {
 	var halfScale, x1, x2, y1, y2;
-	
-	// Currently doesn't try to draw the shortest/wrapped line!
+
+	// Map the points into canvas coordinates
 	halfScale = 0.5 * this.scale;
 	x1 = (col1 * this.scale) + halfScale;
 	y1 = (row1 * this.scale) + halfScale;
 	x2 = (col2 * this.scale) + halfScale;
 	y2 = (row2 * this.scale) + halfScale;
+	// Do wrapping such that lines go the shortest distance
+	if(Math.abs(x2 - x1) > (this.w * 0.5))
+	{
+		(x1 < x2) ? x1 += this.w : x2 += this.w;
+	}
+	if(Math.abs(y2 - y1) > (this.h * 0.5))
+	{
+		(y1 < y2) ? y1 += this.h : y2 += this.h;
+	}
 	this.drawWrapped(Math.min(x1, x2) - 0.01, Math.min(y1, y2) - 0.01, Math.abs(x2 - x1) + 0.02, Math.abs(y2 - y1) + 0.02, this.w, this.h, function() {
 		this.ctx.beginPath();
 		this.ctx.moveTo(x1, y1);
@@ -1002,13 +1012,23 @@ CanvasElementAntsMap.prototype.drawLine = function(row1, col1, row2, col2)
 CanvasElementAntsMap.prototype.drawArrow = function(row1, col1, row2, col2)
 {
 	var halfScale, x1, x2, y1, y2, dx, dy, len, hlen, angle, sharp;
-	
-	// Currently doesn't try to draw the shortest/wrapped line!
+
+	// Map the points into canvas coordinates
 	halfScale = 0.5 * this.scale;
 	x1 = (col1 * this.scale) + halfScale;
 	y1 = (row1 * this.scale) + halfScale;
 	x2 = (col2 * this.scale) + halfScale;
 	y2 = (row2 * this.scale) + halfScale;
+	// Do wrapping such that arrows go the shortest distance
+	if(Math.abs(x2 - x1) > (this.w * 0.5))
+	{
+		(x1 < x2) ? x1 += this.w : x2 += this.w;
+	}
+	if(Math.abs(y2 - y1) > (this.h * 0.5))
+	{
+		(y1 < y2) ? y1 += this.h : y2 += this.h;
+	}
+	// Do calculations for the arrow-head
 	dx = x2 - x1;
 	dy = y2 - y1;
 	len = Math.sqrt((dx * dx) + (dy * dy));
