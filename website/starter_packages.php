@@ -33,7 +33,7 @@ include 'header.php';
     <td><a href="starter_packages/c_starter_package.zip">C</a></td>
     <td>gcc (Ubuntu/Linaro 4.5.2-8ubuntu4) 4.5.2</td>
     <td>&nbsp;</td>
-    <td><em>Hills not implemented yet</em></td>
+    <td>&nbsp;</td>
   </tr>
   <tr>
     <td><a href="starter_packages/csharp_starter_package.zip">C&#35;</a></td>
@@ -68,6 +68,12 @@ include 'header.php';
   <tr>
     <td><a href="starter_packages/d_starter_package.zip">D</a></td>
     <td><em>DMD 2.054 (x86_64) + Phobos</em></td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td><a href="starter_packages/dart_starter_package.zip">Dart</td>
+    <td>Dart frogsh r1499</td>
     <td>&nbsp;</td>
     <td>&nbsp;</td>
   </tr>
