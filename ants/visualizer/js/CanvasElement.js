@@ -488,11 +488,14 @@ CanvasElementAntsMap.prototype.checkState = function() {
 	var i, k, kf, p_i, p_k, dx, dy, rows, cols, ar, owner;
 	var hash = undefined;
 	var timeChanged = this.time !== this.state.time;
-	if (timeChanged || this.scale !== this.state.scale || this.label !== this.state.config['label']) {
+	if (timeChanged || this.scale !== this.state.scale
+					|| this.label !== this.state.config['label']
+					|| (this.aistatePlayer !== this.state.aistatePlayer)) {
 		this.invalid = true;
 		this.time = this.state.time;
 		this.scale = this.state.scale;
 		this.label = this.state.config['label'];
+		this.aistatePlayer = this.state.aistatePlayer;
 
 		// per turn calculations
 		if (this.turn !== (this.time | 0)) {
