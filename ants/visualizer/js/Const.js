@@ -113,3 +113,4 @@ ZOOM_SCALE = 20;
  * @const
  */
 FONT = 'bold 19px Arial,Sans';
+FONT_HEIGHT = 19;
