@@ -102,6 +102,8 @@ class Ants(Game):
 
         # overlay history for each player at each turn
         self.overlay_history = [[] for _ in range(self.num_players)]
+        # map-info history for each player at each turn
+        self.mapinfo_history = [[] for _ in range(self.num_players)]
 
         # used to cutoff games early
         self.cutoff = None
@@ -452,6 +454,7 @@ class Ants(Game):
         # next list all transient objects
         for update in updates:
             if update[0] == 'v': continue # ignore overlay commands
+            if update[0] == 'i': continue # ignore info commands
 
             ilk, row, col = update[0:3]
 
@@ -545,6 +548,7 @@ class Ants(Game):
         invalid = []
         orders = []
         overlays = []
+        mapinfos = []
 
         for line in lines:
             line = line.strip()
@@ -562,12 +566,39 @@ class Ants(Game):
                 orders.append(line.lower())
             elif command == 'v':
                 overlays.append(line)
+            elif command == 'i':
+                mapinfos.append(line)
             else:
                 invalid.append((line, 'unknown command'))
 
-        return invalid, orders, overlays
+        return invalid, orders, overlays, mapinfos
 
-    def parse_overlays(self, player, invalid, lines):
+    def parse_mapinfos(self, player, lines):
+        """ Parse map-info commands from the given player
+
+            Map info commands start with 'i ' then the next two words
+            are the row and column. These are concatenated into a
+            dictionary key of the form <row>x<col>, the rest is stored
+            in the dictionary as the map-info string for that key.
+            If the key already exists, the string is appended to the
+            existing string separated by a newline character.
+        """
+        mapinfos = {}
+
+        for line in lines:
+            # Get the key and text params
+            params = line[2:].split(' ', 2)
+            ikey = params[0] + 'x' + params[1]
+            itext = params[2]
+            # add or append the text to the info text in the dictionary
+            if ikey in mapinfos:
+                mapinfos[ikey] = mapinfos[ikey] + '\\\\n' + itext
+            else:
+                mapinfos[ikey] = itext
+
+        return mapinfos
+
+    def parse_overlays(self, player, lines):
         """ Parse visualizer overlay commands from the given player
 
             Visualizer overlay commands start with 'v ' then the rest
@@ -580,7 +611,7 @@ class Ants(Game):
             vcmd = line[2:].replace(' ', ',')
             overlays.append(vcmd)
 
-        return invalid, overlays
+        return overlays
 
     def parse_orders(self, player, invalid, lines):
         """ Parse orders from the given player
@@ -1627,14 +1658,17 @@ class Ants(Game):
     def do_moves(self, player, moves):
         """ Called by engine to give latest player orders """
         # filter output into different arrays
-        invalid, orders, overlays = self.filter_bot_output(player, moves)
+        invalid, orders, overlays, mapinfos = self.filter_bot_output(player, moves)
         # parse the array of orders
         orders, valid, ignored, invalid = self.parse_orders(player, invalid, orders)
         orders, valid, ignored, invalid = self.validate_orders(player, orders, valid, ignored, invalid)
         self.orders[player] = orders
         # parse the array of visualizer commands
-        invalid, overlays = self.parse_overlays(player, invalid, overlays)
+        overlays = self.parse_overlays(player, overlays)
         self.overlay_history[player].append(overlays)
+        # parse the array of map info commands
+        mapinfos = self.parse_mapinfos(player, mapinfos)
+        self.mapinfo_history[player].append(mapinfos)
         # return valid orders, ignore messages, and error messages
         return valid, ['%s # %s' % ignore for ignore in ignored], ['%s # %s' % error for error in invalid]
 
@@ -1785,6 +1819,8 @@ class Ants(Game):
 
         # overlay history
         replay['overlay_history'] = self.overlay_history
+        # map-info history
+        replay['mapinfo_history'] = self.mapinfo_history
 
         return replay
 

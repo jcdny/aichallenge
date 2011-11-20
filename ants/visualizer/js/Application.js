@@ -1310,17 +1310,27 @@ Visualizer.prototype.draw = function() {
 		ctx.font = FONT;
 		ctx.textAlign = 'left';
 		ctx.textBaseline = 'middle';
-		if (ctx.measureText(hint).width > loc.w) {
-			do {
-				hint = hint.substr(0, hint.length - 1);
-			} while (hint && ctx.measureText(hint + '...').width > loc.w);
-			if (hint) hint += '...';
+		// split the hint on newline characters
+		var lines = hint.split('\n');
+		// calculate the initial text rectangle
+		var textRect = {x : loc.x, y : loc.y, w : 0, h : FONT_HEIGHT + 3};
+		// draw each line of text in the hint
+		for(var i = 0; i < lines.length; i++) {
+			hint = lines[i];
+			if (ctx.measureText(hint).width > loc.w) {
+				do {
+					hint = hint.substr(0, hint.length - 1);
+				} while (hint && ctx.measureText(hint + '...').width > loc.w);
+				if (hint) hint += '...';
+			}
+			textRect.w = ctx.measureText(hint).width;
+			ctx.fillStyle = 'rgba(0,0,0,0.3)';
+			ctx.fillRect(textRect.x, textRect.y, textRect.w, textRect.h);
+			ctx.fillStyle = '#fff';
+			ctx.fillText(hint, textRect.x, textRect.y + ((textRect.h - 2) * 0.5));
+			// increment the y-position for the next line
+			textRect.y += textRect.h;
 		}
-		w = ctx.measureText(hint).width;
-		ctx.fillStyle = 'rgba(0,0,0,0.3)';
-		ctx.fillRect(loc.x, loc.y, w, 22);
-		ctx.fillStyle = '#fff';
-		ctx.fillText(hint, loc.x, loc.y + 10);
 	}
 	if (this.state.isStreaming) {
 		// we were able to draw a frame, the engine may send us the next turn
@@ -1361,7 +1371,17 @@ Visualizer.prototype.mouseMoved = function(mx, my) {
 	if (this.state.options['interactive']) {
 		if ((this.state.mouseOverVis = this.map.contains(this.mouseX, this.mouseY)
 				&& this.shiftedMap.contains(this.mouseX, this.mouseY))) {
+			// set the hint to show the mouse row and column
 			this.hint = 'row ' + this.state.mouseRow + ' | col ' + this.state.mouseCol;
+			// get the additional map info for the row/column
+			var mapInfo = this.state.replay.meta['replaydata']['mapinfo_history'];
+			if(mapInfo && (this.state.aistatePlayer !== undefined)) {
+				var rowxcol = '' + this.state.mouseRow + 'x' + this.state.mouseCol;
+				var turnInfo = mapInfo[this.state.aistatePlayer][(this.state.time | 0)];
+				if(turnInfo && turnInfo[rowxcol]) {
+					this.hint = this.hint + '\n' + turnInfo[rowxcol];
+				}
+			}
 		}
 		if (this.mouseDown === 1) {
 			tick = this.mouseX - this.scores.graph.x;
