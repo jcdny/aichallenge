@@ -19,12 +19,14 @@ Running Games
 ### Browser-based visualizer
 
 Modify your game-execution script (outside the cloned repository) to use the cloned repository:
+
 `python aichallenge/ants/playgame.py "$BOT0" "$BOT1" "$BOT2" "$BOT3" --map_file $MAP --log_dir game_logs --turns $TURNS --player_seed $SEED --verbose -e --turntime $TURNTIME`
+
 *(The BOTn and MAP can point to any bots/maps in any directory, the main thing is to use the correct path for playgame.py)*
 
 ### Stand-alone real-time streaming visualizer
 
-TODO: Please can someone tell me how to do this?
+**TODO:** Please can someone tell me how to do this?
 
 Visualizing AI State
 --------------------
