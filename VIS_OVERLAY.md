@@ -16,13 +16,13 @@ alongside or instead of the tools directory from the main site.
 Running Games
 -------------
 
-## Browser-based visualizer
+### Browser-based visualizer
 
 Modify your game-execution script (outside the cloned repository) to use the cloned repository:
 `python aichallenge/ants/playgame.py "$BOT0" "$BOT1" "$BOT2" "$BOT3" --map_file $MAP --log_dir game_logs --turns $TURNS --player_seed $SEED --verbose -e --turntime $TURNTIME`
 *(The BOTn and MAP can point to any bots/maps in any directory, the main thing is to use the correct path for playgame.py)*
 
-## Stand-alone real-time streaming visualizer
+### Stand-alone real-time streaming visualizer
 
 TODO: Please can someone tell me how to do this?
 
@@ -46,7 +46,7 @@ output to control your ants' movement, you can also send the following
 * `v tileSubTile row col subtile`
 * `i row col rest-of-line-is-any-string-you-like`
 
-Notes:
+### Notes:
 
 * `setLineWidth` sets the with for all line-drawing commands. The line width `w` is in screen-units (not map-units).
 * `setLineColour` and `setFillColour` set the colour values for all line-drawing and filled area drawing commands. Colours are specified as integers for `r`, `g`, and `b` (from 0-255) and the alpha value `a` is a float (from 0.0-1.0).
