@@ -455,7 +455,6 @@ class Ants(Game):
         for update in updates:
             if update[0] == 'v': continue # ignore overlay commands
             if update[0] == 'i': continue # ignore info commands
-
             ilk, row, col = update[0:3]
 
             # only include updates to squares which are visible
