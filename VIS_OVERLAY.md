@@ -7,18 +7,19 @@ Installation
 ------------
 
 * Clone the repository to your machine: `git clone git://github.com/j-h-a/aichallenge.git ./aichallenge`
+* Change directory to the newly cloned repository: `cd aichallenge`
 * Switch to the `vis_overlay` branch: `git checkout vis_overlay`
 * Initialize the submodules: `git submodule init; git submodule update`
 
-This installs all you need to use the AI visualizer, it can be installed
-alongside or instead of the tools directory from the main site.
+This installs all you need to use the browser-based AI visualizer, it can be installed
+alongside (or even instead of) the tools directory from the main site.
+Don't try to mix-and-match files between this repository and your tools directory,
+use one or the other (or swap between using the two).
 
-Running Games
--------------
+### Running a Game
 
-### Browser-based visualizer
-
-Modify your game-execution script (outside the cloned repository) to use the cloned repository:
+Create or modify your game-execution script (outside the cloned repository) to
+use this version of the game. It should look something like this:
 
 `python aichallenge/ants/playgame.py "$BOT0" "$BOT1" "$BOT2" "$BOT3" --map_file $MAP --log_dir game_logs --turns $TURNS --player_seed $SEED --verbose -e --turntime $TURNTIME`
 
@@ -26,7 +27,16 @@ Modify your game-execution script (outside the cloned repository) to use the clo
 
 ### Stand-alone real-time streaming visualizer
 
-**TODO:** Please can someone tell me how to do this?
+If you want to use the stand-alone real-time visualizer you will need to do a few more steps:
+
+* Make sure you're in the repository directory: `cd aichallenge`
+* Build the Java visualizer: `cd ants/visualizer; ant jar`
+* Test that the build worked: `ant run-visualizer`
+
+You should see the Java visualizer pop up with a sample game replay.
+Now create a new version of your game-execution script to look something like this:
+
+`python aichallenge/ants/playgame.py "$BOT0" "$BOT1" "$BOT2" "$BOT3" --map_file $MAP --turns $TURNS --player_seed $SEED -e --turntime $TURNTIME --nolaunch -So | java -jar aichallenge/ants/visualizer/build/deploy/visualizer.jar`
 
 Visualizing AI State
 --------------------
@@ -61,4 +71,7 @@ output to control your ants' movement, you can also send the following
 * `tileBorder` and `tileSubTile`: Imagine each tile (map-square) is divided into nine sub-tiles like a naughts-and-crosses board, the `subtile` parameter is a combination of Top-Middle-Bottom and Left-Middle-Right to define which of the nine sub-tiles you want to draw. It should be one of: `TL`, `TM`, `TR`, `ML`, `MM`, `MR`, `BL`, `BM`, `BR`. `tileSubTile` fills the specified sub-tile while `tileBorder` draws a line around the edge of the tile at the specified sub-tile location, or around the whole tile if `subtile` is `MM`.
 * The `i` command adds map-information to a specific tile on the current turn. In the visualizer move your mouse over the tile to see the string you specified. If you specify this command more than once for the same row and column on any turn, the additional strings will be appended on a new line.
 
+When you output these commands from your bot and run it under this version
+of the game, you can see the AI-state visualizations for each bot by pressing
+the ai-state toggle-buttons (next to the fog-of-war buttons in the visualizer).
 
