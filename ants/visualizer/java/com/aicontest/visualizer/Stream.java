@@ -117,6 +117,9 @@ public class Stream extends IdScriptableObject {
 						storeSet.put(i, storeSet, 0);
 					}
 					for (int i = 0; i < players; i++) {
+						if (overlay_history.size() < i + 1) {
+							overlay_history.put(i, overlay_history, new NativeArray(0));						
+						}
 						NativeArray turns = (NativeArray) overlay_history.get(i);
 						turns.put(turn, turns, new NativeArray(0));
 					}
@@ -161,8 +164,6 @@ public class Stream extends IdScriptableObject {
 						wallsRow.put(i, wallsRow, c == '%');
 					} else {
 						if (players < playerId + 1) {
-							NativeArray turns = new NativeArray(0);
-							overlay_history.put(players, overlay_history, turns);
 							players = playerId + 1;
 						}
 						if (isHill) {
