@@ -26,5 +26,5 @@ Installation
 
 Follow [INSTALL.md](https://github.com/aichallenge/aichallenge/blob/epsilon/INSTALL.md).
 
-For AI-state visualizations, see [VIS_OVERLAY.md]
+For AI-state visualizations, see [VIS_OVERLAY.md](https://github.com/j-h-a/aichallenge/blob/vis_overlay/VIS_OVERLAY.md).
 
