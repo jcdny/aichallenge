@@ -21,7 +21,7 @@ use one or the other (or swap between using the two).
 Create or modify your game-execution script (outside the cloned repository) to
 use this version of the game. It should look something like this:
 
-`python aichallenge/ants/playgame.py "$BOT0" "$BOT1" "$BOT2" "$BOT3" --map_file $MAP --log_dir game_logs --turns $TURNS --player_seed $SEED --verbose -e --turntime $TURNTIME`
+`python aichallenge/ants/playgame.py "$BOT0" "$BOT1" "$BOT2" "$BOT3" --map_file $MAP --log_dir game_logs --turns $TURNS --player_seed $SEED --engine_seed $ESEED --verbose -e --turntime $TURNTIME`
 
 *(The BOTn and MAP can point to any bots/maps in any directory, the main thing is to use the correct path for playgame.py)*
 
@@ -36,7 +36,7 @@ If you want to use the stand-alone real-time visualizer you will need to do a fe
 You should see the Java visualizer pop up with a sample game replay.
 Now create a new version of your game-execution script to look something like this:
 
-`python aichallenge/ants/playgame.py "$BOT0" "$BOT1" "$BOT2" "$BOT3" --map_file $MAP --turns $TURNS --player_seed $SEED -e --turntime $TURNTIME --nolaunch -So | java -jar aichallenge/ants/visualizer/build/deploy/visualizer.jar`
+`python aichallenge/ants/playgame.py "$BOT0" "$BOT1" "$BOT2" "$BOT3" --map_file $MAP --log_dir game_logs --turns $TURNS --player_seed $SEED --engine_seed $ESEED --verbose -e --turntime $TURNTIME --nolaunch -So | java -jar aichallenge/ants/visualizer/build/deploy/visualizer.jar`
 
 Visualizing AI State
 --------------------
