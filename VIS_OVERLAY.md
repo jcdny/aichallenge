@@ -45,9 +45,13 @@ From your bot, in addition to the `o row col direction` commands you
 output to control your ants' movement, you can also send the following
 (case-sensitive) visualization commands:
 
+Setting state:
+
 * `v setFillColor r g b a`
 * `v setLineColor r g b a`
 * `v setLineWidth w`
+
+Drawing:
 
 * `v arrow row1 col1 row2 col2`
 * `v circle row col radius fill`
