@@ -866,36 +866,52 @@ CanvasElementAntsMap.prototype.draw = function() {
 				// process visualizer commands
 				var overlay = overlays[i].split(',');
 				switch (overlay[0]) {
+					case 'slw':
 					case 'setLineWidth':
 						this.setLineWidth(Number(overlay[1]));
 						break;
+					case 'slc':
 					case 'setLineColor':
 						this.setLineColor(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
 						break;
+					case 'sfc':
 					case 'setFillColor':
 						this.setFillColor(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
 						break;
+					case 'a':
 					case 'arrow':
 						this.drawArrow(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
 						break;
+					case 'c':
 					case 'circle':
 						this.drawCircle(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), overlay[4].toLowerCase() === 'true');
 						break;
+					case 'l':
 					case 'line':
 						this.drawLine(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
 						break;
+					case 'r':
 					case 'rect':
 						this.drawRect(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]), overlay[5].toLowerCase() === 'true');
 						break;
+					case 'rp':
+					case 'routePlan':
+						this.drawRoutePlan(Number(overlay[1]), Number(overlay[2]), overlay[3].toLowerCase());
+						break;
+					case 's':
 					case 'star':
 						this.drawStar(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]), Number(overlay[5]), overlay[6].toLowerCase() === 'true');
 						break;
+					case 't':
 					case 'tile':
 						this.drawTile(Number(overlay[1]), Number(overlay[2]));
 						break;
+					case 'tb':
 					case 'tileBorder':
 						this.drawTileBorder(Number(overlay[1]), Number(overlay[2]), overlay[3]);
 						break;
+					case 'ts':
+					case 'tileSubtile':
 					case 'tileSubTile':
 						this.drawTileSubTile(Number(overlay[1]), Number(overlay[2]), overlay[3]);
 						break;
@@ -1052,6 +1068,70 @@ CanvasElementAntsMap.prototype.drawArrow = function(row1, col1, row2, col2)
 CanvasElementAntsMap.prototype.drawTile = function(row, col)
 {
 	this.drawRect(row - 0.5, col - 0.5, 1, 1, true);
+};
+
+/**
+ * Overlay routePlan
+ */
+CanvasElementAntsMap.prototype.drawRoutePlan = function(row, col, plan)
+{
+	var scale, halfScale, startX, startY, maxX, maxY, minX, minY, x, y, i;
+
+	// Map the points into canvas coordinates
+	scale = this.scale;
+	halfScale = 0.5 * scale;
+	x = maxX = minX = startX = (col * scale) + halfScale;
+	y = maxY = minY = startY = (row * scale) + halfScale;
+	// Calculate the extents of drawing, by following the plan
+	for(i = 0; i < plan.length; i++)
+	{
+		switch(plan.charAt(i)) {
+			case 'n':
+				y -= scale;
+				if(y < minY) minY = y;
+				break;
+			case 'e':
+				x += scale;
+				if(x > maxX) maxX = x;
+				break;
+			case 's':
+				y += scale;
+				if(y > maxY) maxY = y;
+				break;
+			case 'w':
+				x -= scale;
+				if(x < minX) minX = x;
+				break;
+		}
+	}
+	this.drawWrapped(minX - 0.01, minY - 0.01, maxX - minX + 0.02, maxY - minY + 0.02, this.w, this.h, function() {
+		x = startX;
+		y = startY;
+		this.ctx.beginPath();
+		this.ctx.moveTo(x, y);
+			for(i = 0; i < plan.length; i++)
+			{
+				switch(plan.charAt(i)) {
+					case 'n':
+						y -= scale;
+						this.ctx.lineTo(x, y);
+						break;
+					case 'e':
+						x += scale;
+						this.ctx.lineTo(x, y);
+						break;
+					case 's':
+						y += scale;
+						this.ctx.lineTo(x, y);
+						break;
+					case 'w':
+						x -= scale;
+						this.ctx.lineTo(x, y);
+						break;
+				}
+			}
+		this.ctx.stroke();
+	 }, []);
 };
 
 /**

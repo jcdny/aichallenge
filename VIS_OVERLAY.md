@@ -45,18 +45,30 @@ From your bot, in addition to the `o row col direction` commands you
 output to control your ants' movement, you can also send the following
 (case-sensitive) visualization commands:
 
-* `v setLineWidth w`
-* `v setLineColor r g b a`
 * `v setFillColor r g b a`
-* `v circle row col radius fill`
-* `v rect row col width height fill`
-* `v line row1 col1 row2 col2`
+* `v setLineColor r g b a`
+* `v setLineWidth w`
+
 * `v arrow row1 col1 row2 col2`
+* `v circle row col radius fill`
+* `v line row1 col1 row2 col2`
+* `v rect row col width height fill`
+* `v routePlan row col plan-string`
 * `v star row col inner_radius outer_radius points fill`
 * `v tile row col`
 * `v tileBorder row col subtile`
-* `v tileSubTile row col subtile`
+* `v tileSubtile row col subtile`
 * `i row col rest-of-line-is-any-string-you-like`
+
+### Aliases:
+
+The draw commands (second word, after a `v` command) have short aliases that
+you can use if preferred, to save space in the output/replay.
+The aliases are made by taking the first letter of the command,
+or first letter plus any capitalized letters for multi-word commands.
+So the aliases are:
+
+`sfc slc slw a c l r rp s t tb ts`
 
 ### Notes:
 
@@ -70,6 +82,7 @@ output to control your ants' movement, you can also send the following
 * `tile` draws a filled rectangle over the specified map-square. The same effect can be achieved with rect, but this is much easier if you want to exactly cover one square. Be sure to use a transparent fill-colour unless you want to completely block out the actual game square.
 * `tileBorder` and `tileSubTile`: Imagine each tile (map-square) is divided into nine sub-tiles like a naughts-and-crosses board, the `subtile` parameter is a combination of Top-Middle-Bottom and Left-Middle-Right to define which of the nine sub-tiles you want to draw. It should be one of: `TL`, `TM`, `TR`, `ML`, `MM`, `MR`, `BL`, `BM`, `BR`. `tileSubTile` fills the specified sub-tile while `tileBorder` draws a line around the edge of the tile at the specified sub-tile location, or around the whole tile if `subtile` is `MM`.
 * The `i` command adds map-information to a specific tile on the current turn. In the visualizer move your mouse over the tile to see the string you specified. If you specify this command more than once for the same row and column on any turn, the additional strings will be appended on a new line.
+* The `plan-string` for the `routePlan` command is a case-insensitive sequence of direction characters, for example `NNEENNWWWWSS`. It draws a line using the current line width and colour from the starting row and column along the planned route.
 
 When you output these commands from your bot and run it under this version
 of the game, you can see the AI-state visualizations for each bot by pressing
