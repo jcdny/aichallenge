@@ -365,8 +365,8 @@ def get_moves(game, bots, bot_nums, time_limit, turn):
                 game.kill_player(bot_nums[b])
                 continue # bot is dead
 
-            # read a maximum of 1000 lines per iteration
-            for x in range(1000):
+            # read a maximum of 10000 lines per iteration
+            for x in range(10000):
                 line = bot.read_line()
                 if line is None:
                     # stil waiting for more data
@@ -378,7 +378,7 @@ def get_moves(game, bots, bot_nums, time_limit, turn):
                     break
                 bot_moves[b].append(line)
 
-            for x in range(1000):
+            for x in range(10000):
                 line = bot.read_error()
                 if line is None:
                     break
