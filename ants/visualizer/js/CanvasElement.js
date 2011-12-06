@@ -636,6 +636,81 @@ CanvasElementAntsMap.prototype.draw = function() {
 	// draw map
 	this.ctx.drawImage(this.map.canvas, 0, 0);
 
+	// fog
+	if (this.state.fogPlayer !== undefined) {
+		dx = (this.fog.w < colPixels) ? ((colPixels - this.fog.w + 1) >> 1) - this.fog.shiftX : 0;
+		dy = (this.fog.h < rowPixels) ? ((rowPixels - this.fog.h + 1) >> 1) - this.fog.shiftY : 0;
+		this.drawWrapped(dx, dy, this.fog.w, this.fog.h, this.w, this.h, function(ctx, img, x, y) {
+			ctx.drawImage(img, x, y);
+		}, [ this.ctx, this.fog.canvas, dx, dy ]);
+	}
+
+	// draw ai-state visualization graphics
+	this.setLineWidth(1);
+	this.setLineColor(0, 0, 0, 1);
+	this.setFillColor(255, 255, 255, 0.5);
+	var overlay_history = this.state.replay.meta['replaydata']['overlay_history'];
+	if (this.state.aistatePlayer !== undefined) {
+		var overlays = overlay_history[this.state.aistatePlayer][this.turn];
+		if(overlays != null) {
+			for(i = 0; i < overlays.length; i++) {
+				// process visualizer commands
+				var overlay = overlays[i].split(',');
+				switch (overlay[0]) {
+					case 'slw':
+					case 'setLineWidth':
+						this.setLineWidth(Number(overlay[1]));
+						break;
+					case 'slc':
+					case 'setLineColor':
+						this.setLineColor(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
+						break;
+					case 'sfc':
+					case 'setFillColor':
+						this.setFillColor(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
+						break;
+					case 'a':
+					case 'arrow':
+						this.drawArrow(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
+						break;
+					case 'c':
+					case 'circle':
+						this.drawCircle(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), overlay[4].toLowerCase() === 'true');
+						break;
+					case 'l':
+					case 'line':
+						this.drawLine(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
+						break;
+					case 'r':
+					case 'rect':
+						this.drawRect(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]), overlay[5].toLowerCase() === 'true');
+						break;
+					case 'rp':
+					case 'routePlan':
+						this.drawRoutePlan(Number(overlay[1]), Number(overlay[2]), overlay[3].toLowerCase());
+						break;
+					case 's':
+					case 'star':
+						this.drawStar(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]), Number(overlay[5]), overlay[6].toLowerCase() === 'true');
+						break;
+					case 't':
+					case 'tile':
+						this.drawTile(Number(overlay[1]), Number(overlay[2]));
+						break;
+					case 'tb':
+					case 'tileBorder':
+						this.drawTileBorder(Number(overlay[1]), Number(overlay[2]), overlay[3]);
+						break;
+					case 'ts':
+					case 'tileSubtile':
+					case 'tileSubTile':
+						this.drawTileSubTile(Number(overlay[1]), Number(overlay[2]), overlay[3]);
+						break;
+				}
+			}
+		}
+	}
+
 	// hills
 	halfScale = 0.5 * this.scale;
 	hills = this.state.replay.meta['replaydata']['hills'];
@@ -718,6 +793,7 @@ CanvasElementAntsMap.prototype.draw = function() {
 			}, []);
 		}
 	}
+
 
 	// draw ants sorted by color
 	for (hash in this.drawStates) {
@@ -854,80 +930,6 @@ CanvasElementAntsMap.prototype.draw = function() {
 		this.ctx.restore();
 	}
 
-	// draw ai-state visualization graphics
-	this.setLineWidth(1);
-	this.setLineColor(0, 0, 0, 1);
-	this.setFillColor(255, 255, 255, 0.5);
-	var overlay_history = this.state.replay.meta['replaydata']['overlay_history'];
-	if (this.state.aistatePlayer !== undefined) {
-		var overlays = overlay_history[this.state.aistatePlayer][this.turn];
-		if(overlays != null) {
-			for(i = 0; i < overlays.length; i++) {
-				// process visualizer commands
-				var overlay = overlays[i].split(',');
-				switch (overlay[0]) {
-					case 'slw':
-					case 'setLineWidth':
-						this.setLineWidth(Number(overlay[1]));
-						break;
-					case 'slc':
-					case 'setLineColor':
-						this.setLineColor(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
-						break;
-					case 'sfc':
-					case 'setFillColor':
-						this.setFillColor(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
-						break;
-					case 'a':
-					case 'arrow':
-						this.drawArrow(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
-						break;
-					case 'c':
-					case 'circle':
-						this.drawCircle(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), overlay[4].toLowerCase() === 'true');
-						break;
-					case 'l':
-					case 'line':
-						this.drawLine(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]));
-						break;
-					case 'r':
-					case 'rect':
-						this.drawRect(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]), overlay[5].toLowerCase() === 'true');
-						break;
-					case 'rp':
-					case 'routePlan':
-						this.drawRoutePlan(Number(overlay[1]), Number(overlay[2]), overlay[3].toLowerCase());
-						break;
-					case 's':
-					case 'star':
-						this.drawStar(Number(overlay[1]), Number(overlay[2]), Number(overlay[3]), Number(overlay[4]), Number(overlay[5]), overlay[6].toLowerCase() === 'true');
-						break;
-					case 't':
-					case 'tile':
-						this.drawTile(Number(overlay[1]), Number(overlay[2]));
-						break;
-					case 'tb':
-					case 'tileBorder':
-						this.drawTileBorder(Number(overlay[1]), Number(overlay[2]), overlay[3]);
-						break;
-					case 'ts':
-					case 'tileSubtile':
-					case 'tileSubTile':
-						this.drawTileSubTile(Number(overlay[1]), Number(overlay[2]), overlay[3]);
-						break;
-				}
-			}
-		}
-	}
-
-	// fog
-	if (this.state.fogPlayer !== undefined) {
-		dx = (this.fog.w < colPixels) ? ((colPixels - this.fog.w + 1) >> 1) - this.fog.shiftX : 0;
-		dy = (this.fog.h < rowPixels) ? ((rowPixels - this.fog.h + 1) >> 1) - this.fog.shiftY : 0;
-		this.drawWrapped(dx, dy, this.fog.w, this.fog.h, this.w, this.h, function(ctx, img, x, y) {
-			ctx.drawImage(img, x, y);
-		}, [ this.ctx, this.fog.canvas, dx, dy ]);
-	}
 };
 
 /**
