@@ -351,6 +351,7 @@ def get_moves(game, bots, bot_nums, time_limit, turn):
     while (sum(bot_finished) < len(bot_finished) and
             time.time() - start_time < time_limit):
         time.sleep(0.01)
+        lstart = time.time()
         for b, bot in enumerate(bots):
             if bot_finished[b]:
                 continue # already got bot moves
@@ -374,6 +375,7 @@ def get_moves(game, bots, bot_nums, time_limit, turn):
                 line = line.strip()
                 if line.lower() == 'go':
                     bot_finished[b] = True
+                    error_lines[b].append(unicode('engine: TURN %4d %.2fms') % (turn, (lstart - start_time)*1000))
                     # bot finished sending data for this turn
                     break
                 bot_moves[b].append(line)
